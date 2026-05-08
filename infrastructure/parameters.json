@@ -9,10 +9,7 @@
       "value": "norwayeast"
     },
     "adminSecret": {
-      "value": "ChangeThisAdminSecret123!"
-    },
-    "staticWebHostname": {
-      "value": "placeholder.z1.web.core.windows.net"
+      "value": ""
     }
   }
 }
