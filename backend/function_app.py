@@ -208,6 +208,30 @@ def photos(req: func.HttpRequest) -> func.HttpResponse:
     return json_ok(photo, 201)
 
 
+@app.route(route="photos/search", methods=["GET", "OPTIONS"])
+def search_photos(req: func.HttpRequest) -> func.HttpResponse:
+    if req.method == "OPTIONS":
+        return preflight()
+    q = req.params.get("q", "").strip()
+    if not q:
+        return json_err("q parameter is required")
+    cosmos_db.ensure_containers()
+    results = cosmos_db.search_photos(q)
+    return json_ok({"photos": results, "count": len(results), "query": q})
+
+
+@app.route(route="photos/my", methods=["GET", "OPTIONS"])
+def my_photos(req: func.HttpRequest) -> func.HttpResponse:
+    if req.method == "OPTIONS":
+        return preflight()
+    claims, err = auth_utils.require_auth(req, role="creator")
+    if err:
+        return json_err(err, 401 if "Unauthorized" in err else 403)
+    cosmos_db.ensure_containers()
+    items = cosmos_db.get_photos_by_creator(claims["sub"])
+    return json_ok({"photos": items, "count": len(items)})
+
+
 @app.route(route="photos/{photo_id}", methods=["GET", "DELETE", "OPTIONS"])
 def photo_detail(req: func.HttpRequest, photo_id: str) -> func.HttpResponse:
     if req.method == "OPTIONS":
@@ -235,30 +259,6 @@ def photo_detail(req: func.HttpRequest, photo_id: str) -> func.HttpResponse:
     blob_storage.delete_photo(photo["blob_url"])
     cosmos_db.delete_photo(photo_id)
     return json_ok({"message": "Photo deleted"})
-
-
-@app.route(route="photos/search", methods=["GET", "OPTIONS"])
-def search_photos(req: func.HttpRequest) -> func.HttpResponse:
-    if req.method == "OPTIONS":
-        return preflight()
-    q = req.params.get("q", "").strip()
-    if not q:
-        return json_err("q parameter is required")
-    cosmos_db.ensure_containers()
-    results = cosmos_db.search_photos(q)
-    return json_ok({"photos": results, "count": len(results), "query": q})
-
-
-@app.route(route="photos/my", methods=["GET", "OPTIONS"])
-def my_photos(req: func.HttpRequest) -> func.HttpResponse:
-    if req.method == "OPTIONS":
-        return preflight()
-    claims, err = auth_utils.require_auth(req, role="creator")
-    if err:
-        return json_err(err, 401 if "Unauthorized" in err else 403)
-    cosmos_db.ensure_containers()
-    items = cosmos_db.get_photos_by_creator(claims["sub"])
-    return json_ok({"photos": items, "count": len(items)})
 
 
 # ── Comment Endpoints ─────────────────────────────────────────────────────────
