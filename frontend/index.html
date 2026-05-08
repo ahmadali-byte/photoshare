@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PhotoShare — Sign In</title>
+  <link rel="stylesheet" href="css/app.css" />
+</head>
+<body>
+  <div class="auth-page">
+    <div class="auth-container">
+      <div class="auth-header">
+        <div class="auth-logo">📸</div>
+        <h1>PhotoShare</h1>
+        <p>A scalable cloud-native photo platform</p>
+      </div>
+      <div class="auth-body">
+        <div class="auth-tabs">
+          <div class="auth-tab active" id="tab-login" onclick="switchTab('login')">Sign In</div>
+          <div class="auth-tab" id="tab-register" onclick="switchTab('register')">Register</div>
+        </div>
+
+        <div id="alert-area"></div>
+
+        <!-- Login Form -->
+        <form id="login-form">
+          <div class="form-group">
+            <label for="login-email">Email Address</label>
+            <input type="email" id="login-email" class="form-control" placeholder="you@example.com" required />
+          </div>
+          <div class="form-group">
+            <label for="login-password">Password</label>
+            <input type="password" id="login-password" class="form-control" placeholder="••••••••" required />
+          </div>
+          <button type="submit" class="btn btn-primary" style="width:100%">
+            <span id="login-btn-text">Sign In</span>
+          </button>
+        </form>
+
+        <!-- Register Form -->
+        <form id="register-form" style="display:none">
+          <div class="form-group">
+            <label for="reg-username">Username</label>
+            <input type="text" id="reg-username" class="form-control" placeholder="coolphotographer" required />
+          </div>
+          <div class="form-group">
+            <label for="reg-email">Email Address</label>
+            <input type="email" id="reg-email" class="form-control" placeholder="you@example.com" required />
+          </div>
+          <div class="form-group">
+            <label for="reg-password">Password</label>
+            <input type="password" id="reg-password" class="form-control" placeholder="Min 6 characters" required />
+          </div>
+          <div class="alert alert-info" style="font-size:0.85rem; margin-bottom:16px;">
+            🔒 Public registration creates <strong>Consumer</strong> accounts. Creator accounts are managed by admins.
+          </div>
+          <button type="submit" class="btn btn-primary" style="width:100%">
+            <span id="reg-btn-text">Create Account</span>
+          </button>
+        </form>
+
+        <p style="text-align:center; margin-top:20px; font-size:0.82rem; color:#6b7a99;">
+          Built on Azure · Scalable Architecture · COM769
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast"></div>
+
+  <script src="js/config.js"></script>
+  <script src="js/auth.js"></script>
+  <script>
+    // Redirect if already logged in
+    if (Auth.isLoggedIn()) {
+      window.location.href = Auth.getRole() === "creator" ? "creator.html" : "consumer.html";
+    }
+
+    function switchTab(tab) {
+      document.getElementById("tab-login").classList.toggle("active", tab === "login");
+      document.getElementById("tab-register").classList.toggle("active", tab === "register");
+      document.getElementById("login-form").style.display = tab === "login" ? "block" : "none";
+      document.getElementById("register-form").style.display = tab === "register" ? "block" : "none";
+      document.getElementById("alert-area").innerHTML = "";
+    }
+
+    function showAlert(msg, type = "danger") {
+      document.getElementById("alert-area").innerHTML =
+        `<div class="alert alert-${type}">${msg}</div>`;
+    }
+
+    document.getElementById("login-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById("login-btn-text");
+      btn.innerHTML = '<span class="spinner"></span>';
+      const { ok, data } = await Auth.api("auth/login", {
+        method: "POST",
+        body: JSON.stringify({
+          email: document.getElementById("login-email").value.trim(),
+          password: document.getElementById("login-password").value,
+        }),
+      });
+      btn.textContent = "Sign In";
+      if (ok) {
+        Auth.setSession(data.token, data.user);
+        window.location.href = data.user.role === "creator" ? "creator.html" : "consumer.html";
+      } else {
+        showAlert(data.error || "Login failed. Please check your credentials.");
+      }
+    });
+
+    document.getElementById("register-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById("reg-btn-text");
+      btn.innerHTML = '<span class="spinner"></span>';
+      const { ok, data } = await Auth.api("auth/register", {
+        method: "POST",
+        body: JSON.stringify({
+          username: document.getElementById("reg-username").value.trim(),
+          email: document.getElementById("reg-email").value.trim(),
+          password: document.getElementById("reg-password").value,
+          role: "consumer",
+        }),
+      });
+      btn.textContent = "Create Account";
+      if (ok) {
+        Auth.setSession(data.token, data.user);
+        window.location.href = "consumer.html";
+      } else {
+        showAlert(data.error || "Registration failed. Please try again.");
+      }
+    });
+  </script>
+</body>
+</html>

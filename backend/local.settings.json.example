@@ -1,0 +1,19 @@
+{
+  "IsEncrypted": false,
+  "Values": {
+    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+    "FUNCTIONS_WORKER_RUNTIME": "python",
+    "COSMOS_ENDPOINT": "https://<your-cosmos-account>.documents.azure.com:443/",
+    "COSMOS_KEY": "<your-cosmos-primary-key>",
+    "COSMOS_DATABASE": "photoshare",
+    "BLOB_CONNECTION_STRING": "DefaultEndpointsProtocol=https;AccountName=<your-storage-account>;AccountKey=<key>;EndpointSuffix=core.windows.net",
+    "BLOB_CONTAINER": "photos",
+    "VISION_ENDPOINT": "https://<your-region>.api.cognitive.microsoft.com/",
+    "VISION_KEY": "<your-vision-api-key>",
+    "LANGUAGE_ENDPOINT": "https://<your-language-resource>.cognitiveservices.azure.com/",
+    "LANGUAGE_KEY": "<your-language-api-key>",
+    "JWT_SECRET": "your-super-secret-jwt-key-change-this-in-production",
+    "FRONTEND_URL": "http://localhost:3000",
+    "APPINSIGHTS_INSTRUMENTATIONKEY": "<your-app-insights-key>"
+  }
+}

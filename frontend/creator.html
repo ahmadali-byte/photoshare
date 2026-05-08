@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PhotoShare — Creator Studio</title>
+  <link rel="stylesheet" href="css/app.css" />
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="navbar-brand">
+    <span class="logo-icon">📸</span>
+    <span>PhotoShare</span>
+  </div>
+  <div class="navbar-actions">
+    <span class="badge-role creator">Creator</span>
+    <span id="nav-username" style="font-size:0.9rem; font-weight:600;"></span>
+    <button class="btn btn-secondary btn-sm" onclick="logout()">Sign Out</button>
+  </div>
+</nav>
+
+<div class="container">
+  <!-- Stats -->
+  <div class="page-header">
+    <h2>Creator Studio</h2>
+  </div>
+  <div class="stats-bar" id="stats-bar">
+    <div class="stat-card"><div class="stat-value" id="stat-photos">—</div><div class="stat-label">Photos</div></div>
+    <div class="stat-card"><div class="stat-value" id="stat-comments">—</div><div class="stat-label">Comments</div></div>
+    <div class="stat-card"><div class="stat-value" id="stat-avg-rating">—</div><div class="stat-label">Avg Rating</div></div>
+  </div>
+
+  <!-- Upload Panel -->
+  <div class="upload-panel">
+    <div class="panel-header">📤 Upload New Photo</div>
+    <div class="card-body">
+      <div id="alert-upload"></div>
+      <div class="drop-zone" id="drop-zone" onclick="document.getElementById('file-input').click()">
+        <div class="drop-icon">🖼️</div>
+        <p><strong>Click to browse</strong> or drag &amp; drop a photo</p>
+        <p>JPG, PNG, WebP — max 10MB</p>
+        <input type="file" id="file-input" accept="image/*" style="display:none" />
+      </div>
+      <img id="image-preview" class="image-preview" alt="Preview" />
+      <div id="ai-result-box" style="display:none" class="ai-box">
+        <div class="ai-title">🤖 Azure Computer Vision Analysis</div>
+        <p id="ai-description"></p>
+        <div class="tags" id="ai-tags-container"></div>
+      </div>
+
+      <form id="upload-form">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="f-title">Title *</label>
+            <input type="text" id="f-title" class="form-control" placeholder="Summer at the lake" required />
+          </div>
+          <div class="form-group">
+            <label for="f-location">Location</label>
+            <input type="text" id="f-location" class="form-control" placeholder="Belfast, UK" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="f-caption">Caption</label>
+          <textarea id="f-caption" class="form-control" placeholder="Share the story behind this photo..."></textarea>
+        </div>
+        <div class="form-group">
+          <label for="f-people">People (comma separated)</label>
+          <input type="text" id="f-people" class="form-control" placeholder="Alice, Bob, Charlie" />
+        </div>
+        <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
+          <button type="submit" class="btn btn-primary" id="upload-btn">
+            <span id="upload-btn-text">📤 Upload Photo</span>
+          </button>
+          <button type="button" class="btn btn-secondary" onclick="resetUploadForm()">Clear</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- My Photos -->
+  <div class="page-header">
+    <h2>My Photos</h2>
+    <button class="btn btn-ghost btn-sm" onclick="loadMyPhotos()">↻ Refresh</button>
+  </div>
+  <div id="my-photos-grid" class="photo-grid">
+    <div class="loading-state"><div class="big-spinner"></div><p>Loading your photos...</p></div>
+  </div>
+</div>
+
+<!-- Photo Detail Modal -->
+<div class="modal-overlay" id="detail-modal" onclick="closeModal(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="modal-title"></h3>
+      <button class="modal-close" onclick="closeDetailModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <img id="modal-photo" class="modal-photo" alt="" />
+      <div class="photo-detail-meta" id="modal-meta"></div>
+      <div id="modal-ai-box" style="display:none" class="ai-box">
+        <div class="ai-title">🤖 AI Analysis</div>
+        <p id="modal-ai-desc"></p>
+        <div class="tags" id="modal-ai-tags"></div>
+      </div>
+      <div class="tags" id="modal-people-tags"></div>
+      <div style="margin-top:16px; display:flex; gap:10px;">
+        <button class="btn btn-danger btn-sm" id="delete-btn" onclick="deleteCurrentPhoto()">🗑 Delete Photo</button>
+      </div>
+      <div class="comments-section">
+        <h4 id="comments-heading">Comments</h4>
+        <div id="comments-list"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script src="js/config.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/creator.js"></script>
+</body>
+</html>

@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PhotoShare — Browse</title>
+  <link rel="stylesheet" href="css/app.css" />
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="navbar-brand">
+    <span class="logo-icon">📸</span>
+    <span>PhotoShare</span>
+  </div>
+  <div style="flex:1; max-width:400px; margin:0 24px;">
+    <div class="search-bar">
+      <input type="text" id="search-input" class="form-control" placeholder="🔍 Search photos, places, creators..." />
+      <button class="btn btn-primary" onclick="doSearch()">Search</button>
+    </div>
+  </div>
+  <div class="navbar-actions">
+    <span class="badge-role">Consumer</span>
+    <span id="nav-username" style="font-size:0.9rem; font-weight:600;"></span>
+    <button class="btn btn-secondary btn-sm" onclick="logout()">Sign Out</button>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="page-header">
+    <h2 id="feed-heading">Discover Photos</h2>
+    <div style="display:flex; gap:10px;">
+      <button class="btn btn-ghost btn-sm" onclick="clearSearch()">All Photos</button>
+      <button class="btn btn-ghost btn-sm" onclick="loadFeed()">↻ Refresh</button>
+    </div>
+  </div>
+  <div id="photo-grid" class="photo-grid">
+    <div class="loading-state"><div class="big-spinner"></div><p>Loading photos...</p></div>
+  </div>
+  <div id="load-more" style="text-align:center; padding: 20px 0; display:none;">
+    <button class="btn btn-ghost" onclick="loadMore()">Load More</button>
+  </div>
+</div>
+
+<!-- Photo Detail Modal -->
+<div class="modal-overlay" id="detail-modal" onclick="closeModal(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="modal-title"></h3>
+      <button class="modal-close" onclick="closeDetailModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <img id="modal-photo" class="modal-photo" alt="" />
+
+      <div class="photo-detail-meta" id="modal-meta"></div>
+
+      <div id="modal-ai-box" style="display:none" class="ai-box">
+        <div class="ai-title">🤖 Azure Computer Vision — AI Analysis</div>
+        <p id="modal-ai-desc"></p>
+        <div class="tags" id="modal-ai-tags"></div>
+      </div>
+
+      <div id="modal-people" class="tags" style="margin-top:8px;"></div>
+      <p id="modal-caption" style="margin-top:12px; font-size:0.95rem; line-height:1.6;"></p>
+
+      <!-- Rating -->
+      <div style="margin-top:20px; padding:16px; background:var(--bg); border-radius:10px;">
+        <h4 style="font-size:0.95rem; font-weight:700; margin-bottom:10px;">⭐ Rate this photo</h4>
+        <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+          <div class="stars" id="rating-stars"></div>
+          <span id="rating-display" class="star-display"></span>
+        </div>
+        <p id="rating-msg" style="font-size:0.82rem; margin-top:6px; color:var(--muted);"></p>
+      </div>
+
+      <!-- Comments -->
+      <div class="comments-section">
+        <h4 id="comments-heading">Comments</h4>
+        <div id="comments-list"></div>
+
+        <div class="add-comment-form">
+          <div class="form-group" style="margin-bottom:8px;">
+            <textarea id="comment-input" class="form-control" placeholder="Write a comment... (sentiment analysis powered by Azure AI)" rows="2"></textarea>
+          </div>
+          <button class="btn btn-primary btn-sm" id="comment-btn" onclick="submitComment()">
+            <span id="comment-btn-text">Post Comment</span>
+          </button>
+          <p style="font-size:0.78rem; color:var(--muted); margin-top:6px;">
+            💡 Your comment will be analysed for sentiment using Azure Text Analytics
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script src="js/config.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/consumer.js"></script>
+</body>
+</html>

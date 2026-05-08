@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.env
+.venv/
+venv/
+env/
+*.egg-info/
+.python_packages/
+
+# Azure Functions local settings (contains secrets)
+backend/local.settings.json
+
+# Infrastructure secrets
+infrastructure/parameters.local.json
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# Build
+dist/
+build/
+*.zip
+
+# Node (if added later)
+node_modules/
