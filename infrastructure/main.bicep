@@ -33,10 +33,10 @@ param jwtSecret string
 
 @description('Admin secret for creator account creation')
 @secure()
-param adminSecret string = 'ChangeThisAdminSecret!'
+param adminSecret string = ''
 
 @description('Static website hostname — set after first deployment (leave blank initially)')
-param staticWebHostname string = 'placeholder.z1.web.core.windows.net'
+param staticWebHostname string = 'placeholder.blob.storage.azure.net'
 
 // ── Module 1: Storage ─────────────────────────────────────────────────────────
 module storage 'modules/storage.bicep' = {
@@ -65,19 +65,16 @@ module aiservices 'modules/aiservices.bicep' = {
   }
 }
 
-// Storage connection string (built from storage module outputs)
-var storageConnStr = 'DefaultEndpointsProtocol=https;AccountName=${storage.outputs.storageAccountName};AccountKey=${listKeys(resourceId('Microsoft.Storage/storageAccounts', storage.outputs.storageAccountName), '2023-01-01').keys[0].value};EndpointSuffix=core.windows.net'
-
 // ── Module 4: Function App ────────────────────────────────────────────────────
 module functionapp 'modules/functionapp.bicep' = {
   name: 'functionappDeployment'
   params: {
     appName: appName
     location: location
-    storageConnectionString: storageConnStr
+    storageConnectionString: storage.outputs.storageConnectionString
     cosmosEndpoint: cosmosdb.outputs.cosmosEndpoint
     cosmosKey: cosmosdb.outputs.cosmosPrimaryKey
-    blobConnectionString: storageConnStr
+    blobConnectionString: storage.outputs.storageConnectionString
     visionEndpoint: aiservices.outputs.visionEndpoint
     visionKey: aiservices.outputs.visionKey
     languageEndpoint: aiservices.outputs.languageEndpoint
@@ -86,7 +83,6 @@ module functionapp 'modules/functionapp.bicep' = {
     adminSecret: adminSecret
     frontendUrl: '*'
   }
-  dependsOn: [storage, cosmosdb, aiservices]
 }
 
 // ── Module 5: Front Door (CDN + Routing) ──────────────────────────────────────

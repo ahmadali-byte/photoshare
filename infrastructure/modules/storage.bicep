@@ -42,6 +42,8 @@ resource photosContainer 'Microsoft.Storage/storageAccounts/blobServices/contain
 output storageAccountName string = storageAccount.name
 output storageAccountId string = storageAccount.id
 output blobEndpoint string = storageAccount.properties.primaryEndpoints.blob
+// Connection string built here (not in main.bicep) to avoid BCP181 listKeys error
+output storageConnectionString string = 'DefaultEndpointsProtocol=https;AccountName=${storageAccount.name};AccountKey=${storageAccount.listKeys().keys[0].value};EndpointSuffix=${environment().suffixes.storage}'
 
 // NOTE: After deployment run this CLI command to get the real static web URL:
 // az storage account show --name <storageAccountName> --resource-group <rg> --query "primaryEndpoints.web" -o tsv
