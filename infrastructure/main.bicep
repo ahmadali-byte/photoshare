@@ -1,178 +1,124 @@
-// PhotoShare - Azure Infrastructure
-// Deploy with: az deployment group create --resource-group <rg> --template-file main.bicep --parameters @parameters.json
+// main.bicep — PhotoShare Infrastructure Orchestrator
+// COM769 Scalable Advanced Software Solutions
+//
+// UNIVERSITY REGION RESTRICTION:
+// Ulster University Azure for Students only allows these regions:
+//   switzerlandnorth, germanywestcentral, norwayeast, spaincentral, italynorth
+// Default: norwayeast
+//
+// Deploy command:
+// az deployment group create \
+//   --resource-group rg-photoshare \
+//   --template-file infrastructure/main.bicep \
+//   --parameters infrastructure/parameters.json \
+//   --parameters jwtSecret="$(python3 -c 'import secrets; print(secrets.token_hex(32))')"
 
-@description('Base name for all resources (lowercase, no spaces)')
-param baseName string = 'photoshare'
+@description('Short app name — max 8 chars (longer names cause Bicep maxLength errors)')
+@maxLength(8)
+param appName string = 'pshare'
 
-@description('Azure region')
-param location string = resourceGroup().location
+@description('Azure region — must be university-allowed region')
+@allowed([
+  'norwayeast'
+  'switzerlandnorth'
+  'germanywestcentral'
+  'spaincentral'
+  'italynorth'
+])
+param location string = 'norwayeast'
 
-@description('JWT secret for token signing')
+@description('JWT secret for token signing — auto-generated if using deploy.sh')
 @secure()
 param jwtSecret string
 
 @description('Admin secret for creator account creation')
 @secure()
-param adminSecret string
+param adminSecret string = 'ChangeThisAdminSecret!'
 
-// ── Storage Account ───────────────────────────────────────────────────────────
-resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' = {
-  name: '${baseName}stor${uniqueString(resourceGroup().id)}'
-  location: location
-  sku: { name: 'Standard_LRS' }
-  kind: 'StorageV2'
-  properties: {
-    accessTier: 'Hot'
-    allowBlobPublicAccess: true
-    supportsHttpsTrafficOnly: true
-    minimumTlsVersion: 'TLS1_2'
+@description('Static website hostname — set after first deployment (leave blank initially)')
+param staticWebHostname string = 'placeholder.z1.web.core.windows.net'
+
+// ── Module 1: Storage ─────────────────────────────────────────────────────────
+module storage 'modules/storage.bicep' = {
+  name: 'storageDeployment'
+  params: {
+    appName: appName
+    location: location
   }
 }
 
-resource blobService 'Microsoft.Storage/storageAccounts/blobServices@2023-01-01' = {
-  parent: storageAccount
-  name: 'default'
-}
-
-resource photosContainer 'Microsoft.Storage/storageAccounts/blobServices/containers@2023-01-01' = {
-  parent: blobService
-  name: 'photos'
-  properties: { publicAccess: 'Blob' }
-}
-
-// ── Cosmos DB ─────────────────────────────────────────────────────────────────
-resource cosmosAccount 'Microsoft.DocumentDB/databaseAccounts@2023-04-15' = {
-  name: '${baseName}-cosmos-${uniqueString(resourceGroup().id)}'
-  location: location
-  kind: 'GlobalDocumentDB'
-  properties: {
-    databaseAccountOfferType: 'Standard'
-    consistencyPolicy: { defaultConsistencyLevel: 'Session' }
-    locations: [{ locationName: location, failoverPriority: 0 }]
-    capabilities: [{ name: 'EnableServerless' }]
-    enableFreeTier: true
+// ── Module 2: Cosmos DB ───────────────────────────────────────────────────────
+module cosmosdb 'modules/cosmosdb.bicep' = {
+  name: 'cosmosdbDeployment'
+  params: {
+    appName: appName
+    location: location
   }
 }
 
-resource cosmosDatabase 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases@2023-04-15' = {
-  parent: cosmosAccount
-  name: 'photoshare'
-  properties: {
-    resource: { id: 'photoshare' }
+// ── Module 3: AI Services ─────────────────────────────────────────────────────
+module aiservices 'modules/aiservices.bicep' = {
+  name: 'aiServicesDeployment'
+  params: {
+    appName: appName
+    location: location
   }
 }
 
-var containers = ['users', 'photos', 'comments', 'ratings']
-resource cosmosContainers 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers@2023-04-15' = [for name in containers: {
-  parent: cosmosDatabase
-  name: name
-  properties: {
-    resource: {
-      id: name
-      partitionKey: { paths: ['/id'], kind: 'Hash' }
-    }
+// Storage connection string (built from storage module outputs)
+var storageConnStr = 'DefaultEndpointsProtocol=https;AccountName=${storage.outputs.storageAccountName};AccountKey=${listKeys(resourceId('Microsoft.Storage/storageAccounts', storage.outputs.storageAccountName), '2023-01-01').keys[0].value};EndpointSuffix=core.windows.net'
+
+// ── Module 4: Function App ────────────────────────────────────────────────────
+module functionapp 'modules/functionapp.bicep' = {
+  name: 'functionappDeployment'
+  params: {
+    appName: appName
+    location: location
+    storageConnectionString: storageConnStr
+    cosmosEndpoint: cosmosdb.outputs.cosmosEndpoint
+    cosmosKey: cosmosdb.outputs.cosmosPrimaryKey
+    blobConnectionString: storageConnStr
+    visionEndpoint: aiservices.outputs.visionEndpoint
+    visionKey: aiservices.outputs.visionKey
+    languageEndpoint: aiservices.outputs.languageEndpoint
+    languageKey: aiservices.outputs.languageKey
+    jwtSecret: jwtSecret
+    adminSecret: adminSecret
+    frontendUrl: '*'
   }
-}]
-
-// ── Cognitive Services — Computer Vision ─────────────────────────────────────
-resource visionService 'Microsoft.CognitiveServices/accounts@2023-05-01' = {
-  name: '${baseName}-vision-${uniqueString(resourceGroup().id)}'
-  location: location
-  sku: { name: 'F0' }
-  kind: 'ComputerVision'
-  properties: {
-    publicNetworkAccess: 'Enabled'
-  }
+  dependsOn: [storage, cosmosdb, aiservices]
 }
 
-// ── Cognitive Services — Language (Text Analytics) ────────────────────────────
-resource languageService 'Microsoft.CognitiveServices/accounts@2023-05-01' = {
-  name: '${baseName}-lang-${uniqueString(resourceGroup().id)}'
-  location: location
-  sku: { name: 'F0' }
-  kind: 'TextAnalytics'
-  properties: {
-    publicNetworkAccess: 'Enabled'
-  }
-}
-
-// ── Application Insights ──────────────────────────────────────────────────────
-resource logAnalytics 'Microsoft.OperationalInsights/workspaces@2022-10-01' = {
-  name: '${baseName}-logs'
-  location: location
-  properties: { sku: { name: 'PerGB2018' } }
-}
-
-resource appInsights 'Microsoft.Insights/components@2020-02-02' = {
-  name: '${baseName}-insights'
-  location: location
-  kind: 'web'
-  properties: {
-    Application_Type: 'web'
-    WorkspaceResourceId: logAnalytics.id
-  }
-}
-
-// ── App Service Plan (Consumption - Serverless) ───────────────────────────────
-resource appServicePlan 'Microsoft.Web/serverfarms@2023-01-01' = {
-  name: '${baseName}-plan'
-  location: location
-  sku: { name: 'Y1'; tier: 'Dynamic' }
-  properties: {}
-}
-
-// ── Azure Function App ────────────────────────────────────────────────────────
-resource functionApp 'Microsoft.Web/sites@2023-01-01' = {
-  name: '${baseName}-func-${uniqueString(resourceGroup().id)}'
-  location: location
-  kind: 'functionapp'
-  properties: {
-    serverFarmId: appServicePlan.id
-    siteConfig: {
-      pythonVersion: '3.11'
-      appSettings: [
-        { name: 'AzureWebJobsStorage'; value: 'DefaultEndpointsProtocol=https;AccountName=${storageAccount.name};AccountKey=${storageAccount.listKeys().keys[0].value};EndpointSuffix=core.windows.net' }
-        { name: 'FUNCTIONS_EXTENSION_VERSION'; value: '~4' }
-        { name: 'FUNCTIONS_WORKER_RUNTIME'; value: 'python' }
-        { name: 'APPINSIGHTS_INSTRUMENTATIONKEY'; value: appInsights.properties.InstrumentationKey }
-        { name: 'COSMOS_ENDPOINT'; value: cosmosAccount.properties.documentEndpoint }
-        { name: 'COSMOS_KEY'; value: cosmosAccount.listKeys().primaryMasterKey }
-        { name: 'COSMOS_DATABASE'; value: 'photoshare' }
-        { name: 'BLOB_CONNECTION_STRING'; value: 'DefaultEndpointsProtocol=https;AccountName=${storageAccount.name};AccountKey=${storageAccount.listKeys().keys[0].value};EndpointSuffix=core.windows.net' }
-        { name: 'BLOB_CONTAINER'; value: 'photos' }
-        { name: 'VISION_ENDPOINT'; value: visionService.properties.endpoint }
-        { name: 'VISION_KEY'; value: visionService.listKeys().key1 }
-        { name: 'LANGUAGE_ENDPOINT'; value: languageService.properties.endpoint }
-        { name: 'LANGUAGE_KEY'; value: languageService.listKeys().key1 }
-        { name: 'JWT_SECRET'; value: jwtSecret }
-        { name: 'ADMIN_SECRET'; value: adminSecret }
-        { name: 'FRONTEND_URL'; value: '*' }
-        { name: 'WEBSITE_RUN_FROM_PACKAGE'; value: '1' }
-      ]
-      cors: {
-        allowedOrigins: ['*']
-        supportCredentials: false
-      }
-    }
-    httpsOnly: true
-  }
-}
-
-// ── Azure Static Web App ──────────────────────────────────────────────────────
-resource staticWebApp 'Microsoft.Web/staticSites@2023-01-01' = {
-  name: '${baseName}-web'
-  location: location
-  sku: { name: 'Free'; tier: 'Free' }
-  properties: {
-    buildProperties: {
-      appLocation: '/frontend'
-      outputLocation: ''
-    }
+// ── Module 5: Front Door (CDN + Routing) ──────────────────────────────────────
+// NOTE: Deploy this AFTER you have the real staticWebHostname from blob storage.
+// On first deployment, leave staticWebHostname as default placeholder.
+// On second deployment, provide the real hostname.
+module frontdoor 'modules/frontdoor.bicep' = {
+  name: 'frontdoorDeployment'
+  params: {
+    appName: appName
+    staticWebHostname: staticWebHostname
   }
 }
 
 // ── Outputs ───────────────────────────────────────────────────────────────────
-output functionAppUrl string = 'https://${functionApp.properties.defaultHostName}'
-output staticWebAppUrl string = 'https://${staticWebApp.properties.defaultHostname}'
-output storageAccountName string = storageAccount.name
-output cosmosAccountName string = cosmosAccount.name
+output storageAccountName string = storage.outputs.storageAccountName
+output cosmosAccountName string = cosmosdb.outputs.cosmosAccountName
+output functionAppName string = functionapp.outputs.functionAppName
+output functionAppUrl string = functionapp.outputs.functionAppUrl
+output frontDoorUrl string = frontdoor.outputs.frontDoorUrl
+
+// IMPORTANT: After deployment, run these CLI commands:
+//
+// 1. Get real static website URL:
+//    az storage account show --name <storageAccountName> --resource-group rg-photoshare --query "primaryEndpoints.web" -o tsv
+//
+// 2. Enable static website hosting (cannot be done in Bicep):
+//    az storage blob service-properties update \
+//      --account-name <storageAccountName> \
+//      --static-website \
+//      --index-document index.html \
+//      --404-document index.html \
+//      --auth-mode login
+//
+// 3. Redeploy with real staticWebHostname to fix Front Door origin

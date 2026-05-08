@@ -1,5 +1,6 @@
 name: PhotoShare CI/CD Pipeline
 
+# Triggers on every push to main branch
 on:
   push:
     branches: [main]
@@ -8,12 +9,11 @@ on:
 
 env:
   PYTHON_VERSION: '3.11'
-  FUNCTION_APP_NAME: ${{ secrets.FUNCTION_APP_NAME }}
 
 jobs:
-  # ── Job 1: Test Backend ─────────────────────────────────────────────────────
+  # ── Job 1: Test & Lint ──────────────────────────────────────────────────────
   test-backend:
-    name: Test Backend (Python)
+    name: Test & Lint Python Backend
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -28,34 +28,32 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-          pip install pytest pytest-cov
+          pip install pytest flake8
+
+      - name: Lint — syntax errors only (fast fail)
+        working-directory: backend
+        run: flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
 
       - name: Run unit tests
         working-directory: backend
         env:
+          JWT_SECRET: "test-secret-key-for-ci-only"
           COSMOS_ENDPOINT: "https://mock.documents.azure.com:443/"
-          COSMOS_KEY: "mock_key"
+          COSMOS_KEY: "bW9jaw=="
           COSMOS_DATABASE: "photoshare"
           BLOB_CONNECTION_STRING: "DefaultEndpointsProtocol=https;AccountName=mock;AccountKey=bW9jaw==;EndpointSuffix=core.windows.net"
           BLOB_CONTAINER: "photos"
           VISION_ENDPOINT: "https://mock.cognitiveservices.azure.com/"
-          VISION_KEY: "mock_key"
+          VISION_KEY: "mock"
           LANGUAGE_ENDPOINT: "https://mock.cognitiveservices.azure.com/"
-          LANGUAGE_KEY: "mock_key"
-          JWT_SECRET: "test-secret-key-for-ci"
-          ADMIN_SECRET: "test-admin-secret"
+          LANGUAGE_KEY: "mock"
+          ADMIN_SECRET: "test-admin"
           FRONTEND_URL: "*"
-        run: pytest tests/ -v --tb=short || echo "No tests found - skipping"
-
-      - name: Lint with flake8
-        working-directory: backend
-        run: |
-          pip install flake8
-          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+        run: pytest tests/ -v --tb=short
 
   # ── Job 2: Deploy Backend to Azure Functions ────────────────────────────────
   deploy-backend:
-    name: Deploy Backend to Azure Functions
+    name: Deploy Backend (Oryx Remote Build)
     runs-on: ubuntu-latest
     needs: test-backend
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
@@ -67,11 +65,10 @@ jobs:
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
-      - name: Install dependencies
-        working-directory: backend
-        run: pip install -r requirements.txt --target=".python_packages/lib/site-packages"
-
-      - name: Deploy to Azure Functions
+      # FIX: Use Oryx remote build (scm-do-build-during-deployment + enable-oryx-build)
+      # Local ZIP deploy kept returning HTTP 400 errors.
+      # Oryx builds pip packages natively on the Azure Linux host — no local install needed.
+      - name: Deploy to Azure Functions (Oryx remote build)
         uses: Azure/functions-action@v1
         with:
           app-name: ${{ secrets.FUNCTION_APP_NAME }}
@@ -80,43 +77,45 @@ jobs:
           scm-do-build-during-deployment: true
           enable-oryx-build: true
 
-  # ── Job 3: Deploy Frontend to Azure Static Web Apps ─────────────────────────
+  # ── Job 3: Deploy Frontend to Blob Storage $web container ──────────────────
   deploy-frontend:
-    name: Deploy Frontend to Azure Static Web Apps
+    name: Deploy Frontend to Blob Storage
     runs-on: ubuntu-latest
     needs: test-backend
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     steps:
       - uses: actions/checkout@v4
 
-      - name: Inject API URL into config.js
+      # FIX: Azure Static Web Apps is not available in university-allowed regions.
+      # Solution: Use Blob Storage static website hosting + upload via az cli.
+      # FIX: University accounts cannot create service principals (no AZURE_CREDENTIALS).
+      # Solution: Use storage account key directly — no service principal needed.
+
+      - name: Inject real API URL into config.js
         run: |
           sed -i "s|https://REPLACE_WITH_YOUR_FUNCTION_APP_URL|${{ secrets.FUNCTION_APP_URL }}|g" frontend/js/config.js
-          echo "✅ API URL injected: ${{ secrets.FUNCTION_APP_URL }}"
+          echo "✅ API URL set to: ${{ secrets.FUNCTION_APP_URL }}"
 
-      - name: Deploy to Azure Static Web Apps
-        uses: Azure/static-web-apps-deploy@v1
-        with:
-          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          action: "upload"
-          app_location: "frontend"
-          skip_api_build: true
-
-  # ── Job 4: Deploy Infrastructure via Bicep ───────────────────────────────────
-  deploy-infrastructure:
-    name: Validate Azure Infrastructure (Bicep)
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Azure Login
-        uses: azure/login@v2
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
-
-      - name: Validate Bicep Template
+      - name: Install Azure CLI
         run: |
-          az bicep build --file infrastructure/main.bicep
-          echo "✅ Bicep template is valid"
+          curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+
+      - name: Upload frontend to blob $web container
+        run: |
+          az storage blob upload-batch \
+            --account-name "${{ secrets.AZURE_STORAGE_ACCOUNT_NAME }}" \
+            --account-key "${{ secrets.AZURE_STORAGE_ACCOUNT_KEY }}" \
+            --source frontend \
+            --destination '$web' \
+            --overwrite
+          echo "✅ Frontend uploaded to blob storage"
+
+      - name: Print live frontend URL
+        run: |
+          echo "🌐 Frontend is live at:"
+          az storage account show \
+            --name "${{ secrets.AZURE_STORAGE_ACCOUNT_NAME }}" \
+            --query "primaryEndpoints.web" \
+            --output tsv \
+            --only-show-errors \
+            || echo "  (Run: az storage account show --name ${{ secrets.AZURE_STORAGE_ACCOUNT_NAME }} --query 'primaryEndpoints.web' -o tsv)"

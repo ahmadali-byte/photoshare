@@ -2,17 +2,17 @@
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    "baseName": {
-      "value": "photoshare"
+    "appName": {
+      "value": "pshare"
     },
     "location": {
-      "value": "uksouth"
-    },
-    "jwtSecret": {
-      "value": "CHANGE_THIS_TO_A_LONG_RANDOM_STRING_IN_PRODUCTION"
+      "value": "norwayeast"
     },
     "adminSecret": {
-      "value": "CHANGE_THIS_ADMIN_SECRET_TOO"
+      "value": "ChangeThisAdminSecret123!"
+    },
+    "staticWebHostname": {
+      "value": "placeholder.z1.web.core.windows.net"
     }
   }
 }
