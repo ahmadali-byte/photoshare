@@ -18,7 +18,7 @@ resource cosmosAccount 'Microsoft.DocumentDB/databaseAccounts@2023-04-15' = {
     capabilities: [
       { name: 'EnableServerless' }
     ]
-    enableFreeTier: true
+    enableFreeTier: false
     enableAutomaticFailover: false
     publicNetworkAccess: 'Enabled'
   }

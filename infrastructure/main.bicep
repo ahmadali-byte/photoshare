@@ -6,12 +6,8 @@
 //   switzerlandnorth, germanywestcentral, norwayeast, spaincentral, italynorth
 // Default: norwayeast
 //
-// Deploy command:
-// az deployment group create \
-//   --resource-group rg-photoshare \
-//   --template-file infrastructure/main.bicep \
-//   --parameters infrastructure/parameters.json \
-//   --parameters jwtSecret="$(python3 -c 'import secrets; print(secrets.token_hex(32))')"
+// NOTE: Azure Front Door and Cosmos DB free tier are NOT available on Student subscriptions.
+// Frontend is served directly from Azure Blob Storage static website hosting.
 
 @description('Short app name — max 8 chars (longer names cause Bicep maxLength errors)')
 @maxLength(8)
@@ -27,16 +23,13 @@ param appName string = 'pshare'
 ])
 param location string = 'norwayeast'
 
-@description('JWT secret for token signing — auto-generated if using deploy.sh')
+@description('JWT secret for token signing')
 @secure()
 param jwtSecret string
 
 @description('Admin secret for creator account creation')
 @secure()
 param adminSecret string = ''
-
-@description('Static website hostname — set after first deployment (leave blank initially)')
-param staticWebHostname string = 'placeholder.blob.storage.azure.net'
 
 // ── Module 1: Storage ─────────────────────────────────────────────────────────
 module storage 'modules/storage.bicep' = {
@@ -47,7 +40,7 @@ module storage 'modules/storage.bicep' = {
   }
 }
 
-// ── Module 2: Cosmos DB ───────────────────────────────────────────────────────
+// ── Module 2: Cosmos DB (serverless, free tier disabled — one per subscription) ──
 module cosmosdb 'modules/cosmosdb.bicep' = {
   name: 'cosmosdbDeployment'
   params: {
@@ -85,36 +78,10 @@ module functionapp 'modules/functionapp.bicep' = {
   }
 }
 
-// ── Module 5: Front Door (CDN + Routing) ──────────────────────────────────────
-// NOTE: Deploy this AFTER you have the real staticWebHostname from blob storage.
-// On first deployment, leave staticWebHostname as default placeholder.
-// On second deployment, provide the real hostname.
-module frontdoor 'modules/frontdoor.bicep' = {
-  name: 'frontdoorDeployment'
-  params: {
-    appName: appName
-    staticWebHostname: staticWebHostname
-  }
-}
-
 // ── Outputs ───────────────────────────────────────────────────────────────────
 output storageAccountName string = storage.outputs.storageAccountName
-output cosmosAccountName string = cosmosdb.outputs.cosmosAccountName
 output functionAppName string = functionapp.outputs.functionAppName
 output functionAppUrl string = functionapp.outputs.functionAppUrl
-output frontDoorUrl string = frontdoor.outputs.frontDoorUrl
 
-// IMPORTANT: After deployment, run these CLI commands:
-//
-// 1. Get real static website URL:
-//    az storage account show --name <storageAccountName> --resource-group rg-photoshare --query "primaryEndpoints.web" -o tsv
-//
-// 2. Enable static website hosting (cannot be done in Bicep):
-//    az storage blob service-properties update \
-//      --account-name <storageAccountName> \
-//      --static-website \
-//      --index-document index.html \
-//      --404-document index.html \
-//      --auth-mode login
-//
-// 3. Redeploy with real staticWebHostname to fix Front Door origin
+// After deployment run this to get the static website URL:
+// az storage account show --name <storageAccountName> --resource-group rg-photoshare --query "primaryEndpoints.web" -o tsv
