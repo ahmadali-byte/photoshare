@@ -158,3 +158,74 @@ def my_photos(req: func.HttpRequest) -> func.HttpResponse:
     cosmos_db.ensure_containers()
     items = cosmos_db.get_photos_by_creator(claims["sub"])
     return _ok({"photos": items, "count": len(items)})
+
+
+@app.route(route="photos/{photo_id}", methods=["GET", "DELETE"])
+def photo_detail(req: func.HttpRequest) -> func.HttpResponse:
+    photo_id = req.route_params.get("photo_id")
+    cosmos_db.ensure_containers()
+    if req.method == "GET":
+        photo = cosmos_db.get_photo_by_id(photo_id)
+        if not photo:
+            return _err("Not found", 404)
+        return _ok(photo)
+    claims, err = auth_utils.require_auth(req, role="creator")
+    if err:
+        return _err(err, 401 if "Unauthorized" in err else 403)
+    photo = cosmos_db.get_photo_by_id(photo_id)
+    if not photo:
+        return _err("Not found", 404)
+    if photo["creator_id"] != claims["sub"]:
+        return _err("Forbidden", 403)
+    blob_storage.delete_photo(photo["blob_url"])
+    cosmos_db.delete_photo(photo_id)
+    return _ok({"message": "deleted"})
+
+
+@app.route(route="photos/{photo_id}/comments", methods=["GET", "POST"])
+def comments(req: func.HttpRequest) -> func.HttpResponse:
+    photo_id = req.route_params.get("photo_id")
+    cosmos_db.ensure_containers()
+    if req.method == "GET":
+        items = cosmos_db.get_comments(photo_id)
+        return _ok({"comments": items, "count": len(items)})
+    claims, err = auth_utils.require_auth(req)
+    if err:
+        return _err(err, 401)
+    try:
+        body = req.get_json()
+    except Exception:
+        return _err("Invalid JSON")
+    text = (body.get("text") or "").strip()
+    if not text or len(text) > 500:
+        return _err("text required, max 500 chars")
+    photo = cosmos_db.get_photo_by_id(photo_id)
+    if not photo:
+        return _err("Photo not found", 404)
+    sentiment = cognitive.analyze_sentiment(text)
+    comment = cosmos_db.create_comment(
+        photo_id=photo_id, user_id=claims["sub"], username=claims["username"],
+        text=text, sentiment=sentiment["sentiment"], sentiment_score=sentiment["score"])
+    return _ok(comment, 201)
+
+
+@app.route(route="photos/{photo_id}/rate", methods=["POST"])
+def rate_photo(req: func.HttpRequest) -> func.HttpResponse:
+    photo_id = req.route_params.get("photo_id")
+    claims, err = auth_utils.require_auth(req)
+    if err:
+        return _err(err, 401)
+    try:
+        body = req.get_json()
+    except Exception:
+        return _err("Invalid JSON")
+    rating = body.get("rating")
+    if rating is None or not isinstance(rating, int) or not (1 <= rating <= 5):
+        return _err("rating must be int 1-5")
+    cosmos_db.ensure_containers()
+    photo = cosmos_db.get_photo_by_id(photo_id)
+    if not photo:
+        return _err("Not found", 404)
+    record = cosmos_db.upsert_rating(photo_id, claims["sub"], rating)
+    updated = cosmos_db.get_photo_by_id(photo_id)
+    return _ok({"rating": record, "photo_average": updated["average_rating"], "rating_count": updated["rating_count"]})
