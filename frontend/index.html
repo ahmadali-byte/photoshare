@@ -5,126 +5,201 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>PhotoShare — Cloud-Native Photo Platform</title>
   <link rel="stylesheet" href="css/app.css" />
+  <style>
+    body { margin: 0; overflow: hidden; }
+
+    .splash {
+      height: 100vh;
+      background: #0D0D0D;
+      display: grid;
+      grid-template-rows: 60px 1fr 56px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* subtle radial glow */
+    .splash::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 60% 50% at 50% 40%, rgba(99,102,241,0.13) 0%, transparent 70%),
+        radial-gradient(ellipse 40% 30% at 80% 80%, rgba(245,158,11,0.07) 0%, transparent 60%);
+      pointer-events: none;
+    }
+
+    /* ── Nav ── */
+    .sp-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 40px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      position: relative;
+      z-index: 10;
+    }
+    .sp-brand {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      font-size: 1rem;
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: -0.03em;
+    }
+    .sp-nav-links { display: flex; gap: 8px; }
+
+    /* ── Main content ── */
+    .sp-body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 0 24px;
+      position: relative;
+      z-index: 10;
+      gap: 0;
+    }
+
+    .sp-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 30px;
+      padding: 5px 14px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: rgba(255,255,255,0.5);
+      letter-spacing: 0.05em;
+      margin-bottom: 20px;
+    }
+    .sp-badge span { color: #F59E0B; }
+
+    .sp-title {
+      font-size: clamp(2.2rem, 6vw, 4rem);
+      font-weight: 900;
+      color: #fff;
+      letter-spacing: -0.04em;
+      line-height: 1.06;
+      margin: 0 0 16px;
+    }
+    .sp-title em {
+      font-style: normal;
+      background: linear-gradient(135deg, #a78bfa, #6366f1, #60a5fa);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .sp-sub {
+      font-size: 0.95rem;
+      color: rgba(255,255,255,0.45);
+      max-width: 480px;
+      line-height: 1.7;
+      margin: 0 0 28px;
+    }
+
+    .sp-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-bottom: 36px;
+    }
+
+    /* pills row */
+    .sp-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+      max-width: 600px;
+    }
+    .sp-pill {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 20px;
+      padding: 4px 13px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: rgba(255,255,255,0.4);
+    }
+
+    /* ── Footer bar ── */
+    .sp-footer {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.72rem;
+      color: rgba(255,255,255,0.2);
+      border-top: 1px solid rgba(255,255,255,0.05);
+      position: relative;
+      z-index: 10;
+      letter-spacing: 0.02em;
+    }
+  </style>
 </head>
 <body>
 
-<!-- ── Landing Nav ─────────────────────────────────────────────────────── -->
-<nav class="land-nav">
-  <div class="land-nav-brand">
-    <span class="logo-icon">📷</span>
-    <span>PhotoShare</span>
-  </div>
-  <div class="land-nav-links">
-    <a href="login.html" class="btn btn-ghost btn-sm"
-       style="color:rgba(255,255,255,0.7); border-color:rgba(255,255,255,0.2);">Sign In</a>
-    <a href="login.html#register" class="btn btn-primary btn-sm">Get Started</a>
-  </div>
-</nav>
+<div class="splash">
 
-<!-- ── Hero ───────────────────────────────────────────────────────────── -->
-<section class="hero">
-  <div class="hero-badge">
-    <span>✦</span> COM769 · Scalable Advanced Software Solutions
-  </div>
-  <h1>
-    Share moments.<br/>
-    <em>Powered by the cloud.</em>
-  </h1>
-  <p class="hero-sub">
-    A cloud-native photo platform built on Azure Functions, Cosmos DB,
-    Blob Storage and Azure AI Services — fast, scalable, and intelligent.
-  </p>
-  <div class="hero-actions">
-    <a href="login.html#register" class="btn btn-primary btn-lg">Start Sharing Free</a>
-    <a href="login.html" class="btn btn-outline-white btn-lg">Sign In</a>
-  </div>
-</section>
+  <!-- Nav -->
+  <nav class="sp-nav">
+    <div class="sp-brand">
+      <span>📷</span>
+      <span>PhotoShare</span>
+    </div>
+    <div class="sp-nav-links">
+      <a href="login.html" class="btn btn-ghost btn-sm"
+         style="color:rgba(255,255,255,0.6); border-color:rgba(255,255,255,0.15); font-size:0.8rem;">
+        Sign In
+      </a>
+      <a href="login.html#register" class="btn btn-primary btn-sm" style="font-size:0.8rem;">
+        Get Started
+      </a>
+    </div>
+  </nav>
 
-<!-- ── Features Strip ─────────────────────────────────────────────────── -->
-<section class="features-strip">
-  <div class="features-strip-inner">
-    <div class="feat-item">
-      <div class="feat-icon">🤖</div>
-      <h3>AI Image Analysis</h3>
-      <p>Azure Computer Vision auto-tags every photo with scene descriptions and keywords on upload.</p>
+  <!-- Main -->
+  <div class="sp-body">
+    <div class="sp-badge">
+      <span>✦</span> COM769 · Scalable Advanced Software Solutions
     </div>
-    <div class="feat-item">
-      <div class="feat-icon">💬</div>
-      <h3>Sentiment Analysis</h3>
-      <p>Every comment is scored by Azure Text Analytics — positive, neutral, or negative in real time.</p>
-    </div>
-    <div class="feat-item">
-      <div class="feat-icon">⚡</div>
-      <h3>Serverless &amp; Scalable</h3>
-      <p>Azure Functions Python v2 — 10 API endpoints, scales to zero, costs nothing when idle.</p>
-    </div>
-  </div>
-</section>
 
-<!-- ── How It Works ───────────────────────────────────────────────────── -->
-<div class="section">
-  <p class="section-label">How It Works</p>
-  <h2 class="section-title">From upload to discovery in seconds</h2>
-  <p class="section-sub">
-    Two roles, one seamless experience — Creators share their photography,
-    Consumers discover and engage with it.
-  </p>
-  <div class="steps">
-    <div class="step">
-      <div class="step-num">01</div>
-      <div class="step-icon">👤</div>
-      <h3>Create an Account</h3>
-      <p>Sign up as a Consumer to browse and rate, or as a Creator to upload your photography. No admin key needed.</p>
+    <h1 class="sp-title">
+      Share moments.<br/>
+      <em>Powered by the cloud.</em>
+    </h1>
+
+    <p class="sp-sub">
+      Cloud-native photo platform — Azure Functions, Cosmos DB,
+      Blob Storage &amp; Azure AI. Fast, scalable, intelligent.
+    </p>
+
+    <div class="sp-actions">
+      <a href="login.html#register" class="btn btn-primary btn-lg">Start Sharing Free</a>
+      <a href="login.html" class="btn btn-outline-white btn-lg">Sign In</a>
     </div>
-    <div class="step">
-      <div class="step-num">02</div>
-      <div class="step-icon">📸</div>
-      <h3>Upload &amp; Analyse</h3>
-      <p>Creators upload photos — Azure Computer Vision instantly generates AI descriptions, tags, and captions.</p>
-    </div>
-    <div class="step">
-      <div class="step-num">03</div>
-      <div class="step-icon">⭐</div>
-      <h3>Discover &amp; Engage</h3>
-      <p>Consumers search the feed, rate photos 1–5 stars, and leave comments with live sentiment analysis.</p>
+
+    <div class="sp-pills">
+      <span class="sp-pill">⚡ Azure Functions</span>
+      <span class="sp-pill">🌌 Cosmos DB</span>
+      <span class="sp-pill">📦 Blob Storage</span>
+      <span class="sp-pill">🤖 Computer Vision AI</span>
+      <span class="sp-pill">💬 Text Analytics AI</span>
+      <span class="sp-pill">🚀 GitHub Actions CI/CD</span>
     </div>
   </div>
+
+  <!-- Footer -->
+  <div class="sp-footer">
+    COM769 Coursework &nbsp;·&nbsp; Ulster University QAHE &nbsp;·&nbsp; Built with Microsoft Azure
+  </div>
+
 </div>
-
-<!-- ── Tech Stack ─────────────────────────────────────────────────────── -->
-<section class="tech-section">
-  <h2>Built on Enterprise Azure Infrastructure</h2>
-  <div class="tech-badges">
-    <span class="tech-badge">⚡ Azure Functions (Python v2)</span>
-    <span class="tech-badge">🌌 Cosmos DB (NoSQL)</span>
-    <span class="tech-badge">📦 Blob Storage</span>
-    <span class="tech-badge">🤖 Computer Vision AI</span>
-    <span class="tech-badge">💬 Text Analytics AI</span>
-    <span class="tech-badge">🔒 JWT Authentication</span>
-    <span class="tech-badge">🚀 GitHub Actions CI/CD</span>
-    <span class="tech-badge">🌐 Static Website Hosting</span>
-  </div>
-</section>
-
-<!-- ── CTA ────────────────────────────────────────────────────────────── -->
-<div class="cta-section">
-  <h2>Ready to explore?</h2>
-  <p>Join PhotoShare and experience cloud-native photo sharing powered by real Azure AI.</p>
-  <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap; margin-top:8px;">
-    <a href="login.html#register" class="btn btn-primary btn-lg">Create Free Account</a>
-    <a href="login.html" class="btn btn-ghost btn-lg">Sign In</a>
-  </div>
-</div>
-
-<!-- ── Footer ─────────────────────────────────────────────────────────── -->
-<footer class="footer">
-  <div class="footer-brand">📷 PhotoShare</div>
-  <p class="footer-copy">COM769 Coursework · Ulster University QAHE · Built with Microsoft Azure</p>
-  <div style="display:flex; gap:18px;">
-    <a href="login.html" style="font-size:0.78rem; color:rgba(255,255,255,0.35);">Sign In</a>
-    <a href="login.html#register" style="font-size:0.78rem; color:rgba(255,255,255,0.35);">Register</a>
-  </div>
-</footer>
 
 <script src="js/config.js"></script>
 <script src="js/auth.js"></script>
