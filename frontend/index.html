@@ -3,42 +3,51 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>PhotoShare — Cloud-Native Photo Platform</title>
+  <title>PhotoShare</title>
   <link rel="stylesheet" href="css/app.css" />
   <style>
-    body { margin: 0; overflow: hidden; }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    .splash {
+    html, body {
+      height: 100%;
+      overflow: hidden;
+      font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .page {
       height: 100vh;
       background: #0D0D0D;
-      display: grid;
-      grid-template-rows: 60px 1fr 56px;
+      display: flex;
+      flex-direction: column;
       position: relative;
       overflow: hidden;
     }
 
-    /* subtle radial glow */
-    .splash::before {
+    .page::before {
       content: '';
       position: absolute;
       inset: 0;
       background:
-        radial-gradient(ellipse 60% 50% at 50% 40%, rgba(99,102,241,0.13) 0%, transparent 70%),
-        radial-gradient(ellipse 40% 30% at 80% 80%, rgba(245,158,11,0.07) 0%, transparent 60%);
+        radial-gradient(ellipse 65% 55% at 50% 45%, rgba(99,102,241,0.14) 0%, transparent 70%),
+        radial-gradient(ellipse 35% 30% at 85% 15%, rgba(245,158,11,0.08) 0%, transparent 60%);
       pointer-events: none;
     }
 
-    /* ── Nav ── */
-    .sp-nav {
+    /* NAV */
+    nav {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0 40px;
+      padding: 0 44px;
+      height: 58px;
       border-bottom: 1px solid rgba(255,255,255,0.06);
       position: relative;
       z-index: 10;
+      flex-shrink: 0;
     }
-    .sp-brand {
+
+    .brand {
       display: flex;
       align-items: center;
       gap: 9px;
@@ -47,10 +56,24 @@
       color: #fff;
       letter-spacing: -0.03em;
     }
-    .sp-nav-links { display: flex; gap: 8px; }
 
-    /* ── Main content ── */
-    .sp-body {
+    .nav-btn {
+      display: inline-flex;
+      align-items: center;
+      padding: 7px 20px;
+      background: #fff;
+      color: #0D0D0D;
+      font-size: 0.82rem;
+      font-weight: 700;
+      border-radius: 9px;
+      text-decoration: none;
+      transition: opacity 0.15s;
+    }
+    .nav-btn:hover { opacity: 0.88; }
+
+    /* MAIN */
+    main {
+      flex: 1;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -59,145 +82,142 @@
       padding: 0 24px;
       position: relative;
       z-index: 10;
-      gap: 0;
     }
 
-    .sp-badge {
+    .badge {
       display: inline-flex;
       align-items: center;
       gap: 7px;
       background: rgba(255,255,255,0.06);
       border: 1px solid rgba(255,255,255,0.1);
       border-radius: 30px;
-      padding: 5px 14px;
-      font-size: 0.72rem;
+      padding: 5px 15px;
+      font-size: 0.71rem;
       font-weight: 600;
-      color: rgba(255,255,255,0.5);
+      color: rgba(255,255,255,0.45);
       letter-spacing: 0.05em;
-      margin-bottom: 20px;
+      margin-bottom: 22px;
     }
-    .sp-badge span { color: #F59E0B; }
+    .badge .dot { color: #F59E0B; }
 
-    .sp-title {
-      font-size: clamp(2.2rem, 6vw, 4rem);
+    h1 {
+      font-size: clamp(2.4rem, 6vw, 4.2rem);
       font-weight: 900;
       color: #fff;
       letter-spacing: -0.04em;
-      line-height: 1.06;
-      margin: 0 0 16px;
+      line-height: 1.05;
+      margin-bottom: 18px;
     }
-    .sp-title em {
+
+    h1 em {
       font-style: normal;
-      background: linear-gradient(135deg, #a78bfa, #6366f1, #60a5fa);
+      background: linear-gradient(135deg, #a78bfa 0%, #6366f1 50%, #60a5fa 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
     }
 
-    .sp-sub {
-      font-size: 0.95rem;
-      color: rgba(255,255,255,0.45);
-      max-width: 480px;
-      line-height: 1.7;
-      margin: 0 0 28px;
+    .sub {
+      font-size: 0.97rem;
+      color: rgba(255,255,255,0.42);
+      max-width: 440px;
+      line-height: 1.72;
+      margin-bottom: 32px;
     }
 
-    .sp-actions {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      justify-content: center;
-      margin-bottom: 36px;
+    .cta-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 13px 34px;
+      background: #fff;
+      color: #0D0D0D;
+      font-size: 0.92rem;
+      font-weight: 800;
+      border-radius: 11px;
+      text-decoration: none;
+      letter-spacing: -0.01em;
+      transition: all 0.15s;
+      margin-bottom: 40px;
     }
+    .cta-btn:hover { background: #F0F0EE; transform: translateY(-1px); box-shadow: 0 8px 24px rgba(255,255,255,0.12); }
+    .cta-btn .arrow { font-style: normal; }
 
-    /* pills row */
-    .sp-pills {
+    .pills {
       display: flex;
       flex-wrap: wrap;
       gap: 8px;
       justify-content: center;
-      max-width: 600px;
+      max-width: 560px;
     }
-    .sp-pill {
-      background: rgba(255,255,255,0.05);
+    .pill {
+      background: rgba(255,255,255,0.04);
       border: 1px solid rgba(255,255,255,0.08);
       border-radius: 20px;
       padding: 4px 13px;
-      font-size: 0.72rem;
+      font-size: 0.71rem;
       font-weight: 600;
-      color: rgba(255,255,255,0.4);
+      color: rgba(255,255,255,0.35);
     }
 
-    /* ── Footer bar ── */
-    .sp-footer {
+    /* FOOTER */
+    footer {
+      height: 44px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 0.72rem;
-      color: rgba(255,255,255,0.2);
+      font-size: 0.71rem;
+      color: rgba(255,255,255,0.18);
       border-top: 1px solid rgba(255,255,255,0.05);
+      flex-shrink: 0;
       position: relative;
       z-index: 10;
-      letter-spacing: 0.02em;
+      letter-spacing: 0.03em;
     }
   </style>
 </head>
 <body>
 
-<div class="splash">
+<div class="page">
 
-  <!-- Nav -->
-  <nav class="sp-nav">
-    <div class="sp-brand">
+  <nav>
+    <div class="brand">
       <span>📷</span>
       <span>PhotoShare</span>
     </div>
-    <div class="sp-nav-links">
-      <a href="login.html" class="btn btn-ghost btn-sm"
-         style="color:rgba(255,255,255,0.6); border-color:rgba(255,255,255,0.15); font-size:0.8rem;">
-        Sign In
-      </a>
-      <a href="login.html#register" class="btn btn-primary btn-sm" style="font-size:0.8rem;">
-        Get Started
-      </a>
-    </div>
+    <a href="login.html" class="nav-btn">Sign In</a>
   </nav>
 
-  <!-- Main -->
-  <div class="sp-body">
-    <div class="sp-badge">
-      <span>✦</span> COM769 · Scalable Advanced Software Solutions
+  <main>
+    <div class="badge">
+      <span class="dot">✦</span>
+      COM769 · Scalable Advanced Software Solutions
     </div>
 
-    <h1 class="sp-title">
-      Share moments.<br/>
-      <em>Powered by the cloud.</em>
-    </h1>
+    <h1>Share moments.<br/><em>Powered by the cloud.</em></h1>
 
-    <p class="sp-sub">
-      Cloud-native photo platform — Azure Functions, Cosmos DB,
-      Blob Storage &amp; Azure AI. Fast, scalable, intelligent.
+    <p class="sub">
+      A cloud-native photo platform built on Azure Functions, Cosmos DB,
+      Blob Storage and Azure AI — fast, scalable, and intelligent.
     </p>
 
-    <div class="sp-actions">
-      <a href="login.html#register" class="btn btn-primary btn-lg">Start Sharing Free</a>
-      <a href="login.html" class="btn btn-outline-white btn-lg">Sign In</a>
-    </div>
+    <a href="login.html#register" class="cta-btn">
+      Get Started <span class="arrow">→</span>
+    </a>
 
-    <div class="sp-pills">
-      <span class="sp-pill">⚡ Azure Functions</span>
-      <span class="sp-pill">🌌 Cosmos DB</span>
-      <span class="sp-pill">📦 Blob Storage</span>
-      <span class="sp-pill">🤖 Computer Vision AI</span>
-      <span class="sp-pill">💬 Text Analytics AI</span>
-      <span class="sp-pill">🚀 GitHub Actions CI/CD</span>
+    <div class="pills">
+      <span class="pill">⚡ Azure Functions</span>
+      <span class="pill">🌌 Cosmos DB</span>
+      <span class="pill">📦 Blob Storage</span>
+      <span class="pill">🤖 Computer Vision AI</span>
+      <span class="pill">💬 Text Analytics AI</span>
+      <span class="pill">🚀 GitHub Actions CI/CD</span>
     </div>
-  </div>
+  </main>
 
-  <!-- Footer -->
-  <div class="sp-footer">
+  <footer>
     COM769 Coursework &nbsp;·&nbsp; Ulster University QAHE &nbsp;·&nbsp; Built with Microsoft Azure
-  </div>
+  </footer>
 
 </div>
 
