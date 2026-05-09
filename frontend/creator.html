@@ -10,21 +10,22 @@
 
 <nav class="navbar">
   <div class="navbar-brand">
-    <span class="logo-icon">📸</span>
+    <span class="logo-icon">◼</span>
     <span>PhotoShare</span>
   </div>
   <div class="navbar-actions">
     <span class="badge-role creator">Creator</span>
-    <span id="nav-username" style="font-size:0.9rem; font-weight:600;"></span>
+    <span id="nav-username" style="font-size:0.85rem; font-weight:600; color:#888;"></span>
     <button class="btn btn-secondary btn-sm" onclick="logout()">Sign Out</button>
   </div>
 </nav>
 
 <div class="container">
-  <!-- Stats -->
+
   <div class="page-header">
     <h2>Creator Studio</h2>
   </div>
+
   <div class="stats-bar" id="stats-bar">
     <div class="stat-card"><div class="stat-value" id="stat-photos">—</div><div class="stat-label">Photos</div></div>
     <div class="stat-card"><div class="stat-value" id="stat-comments">—</div><div class="stat-label">Comments</div></div>
@@ -33,18 +34,18 @@
 
   <!-- Upload Panel -->
   <div class="upload-panel">
-    <div class="panel-header">📤 Upload New Photo</div>
+    <div class="panel-header">Upload Photo</div>
     <div class="card-body">
       <div id="alert-upload"></div>
       <div class="drop-zone" id="drop-zone" onclick="document.getElementById('file-input').click()">
-        <div class="drop-icon">🖼️</div>
-        <p><strong>Click to browse</strong> or drag &amp; drop a photo</p>
-        <p>JPG, PNG, WebP — max 10MB</p>
+        <div class="drop-icon">↑</div>
+        <p><strong>Click to browse</strong> or drag &amp; drop</p>
+        <p>JPG, PNG, WebP — max 10 MB</p>
         <input type="file" id="file-input" accept="image/*" style="display:none" />
       </div>
       <img id="image-preview" class="image-preview" alt="Preview" />
       <div id="ai-result-box" style="display:none" class="ai-box">
-        <div class="ai-title">🤖 Azure Computer Vision Analysis</div>
+        <div class="ai-title">Azure Computer Vision — AI Analysis</div>
         <p id="ai-description"></p>
         <div class="tags" id="ai-tags-container"></div>
       </div>
@@ -53,11 +54,11 @@
         <div class="form-row">
           <div class="form-group">
             <label for="f-title">Title *</label>
-            <input type="text" id="f-title" class="form-control" placeholder="Summer at the lake" required />
+            <input type="text" id="f-title" class="form-control" placeholder="e.g. Summer at the lake" required />
           </div>
           <div class="form-group">
             <label for="f-location">Location</label>
-            <input type="text" id="f-location" class="form-control" placeholder="Belfast, UK" />
+            <input type="text" id="f-location" class="form-control" placeholder="e.g. Belfast, UK" />
           </div>
         </div>
         <div class="form-group">
@@ -65,14 +66,14 @@
           <textarea id="f-caption" class="form-control" placeholder="Share the story behind this photo..."></textarea>
         </div>
         <div class="form-group">
-          <label for="f-people">People (comma separated)</label>
+          <label for="f-people">People tagged (comma separated)</label>
           <input type="text" id="f-people" class="form-control" placeholder="Alice, Bob, Charlie" />
         </div>
-        <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
+        <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
           <button type="submit" class="btn btn-primary" id="upload-btn">
-            <span id="upload-btn-text">📤 Upload Photo</span>
+            <span id="upload-btn-text">Upload Photo</span>
           </button>
-          <button type="button" class="btn btn-secondary" onclick="resetUploadForm()">Clear</button>
+          <button type="button" class="btn btn-ghost btn-sm" onclick="resetUploadForm()">Clear</button>
         </div>
       </form>
     </div>
@@ -99,13 +100,14 @@
       <img id="modal-photo" class="modal-photo" alt="" />
       <div class="photo-detail-meta" id="modal-meta"></div>
       <div id="modal-ai-box" style="display:none" class="ai-box">
-        <div class="ai-title">🤖 AI Analysis</div>
+        <div class="ai-title">Azure Computer Vision — AI Analysis</div>
         <p id="modal-ai-desc"></p>
         <div class="tags" id="modal-ai-tags"></div>
       </div>
       <div class="tags" id="modal-people-tags"></div>
-      <div style="margin-top:16px; display:flex; gap:10px;">
-        <button class="btn btn-danger btn-sm" id="delete-btn" onclick="deleteCurrentPhoto()">🗑 Delete Photo</button>
+      <p id="modal-caption" style="margin-top:12px; font-size:0.9rem; line-height:1.6; color:var(--muted);"></p>
+      <div style="margin-top:16px;">
+        <button class="btn btn-danger btn-sm" id="delete-btn" onclick="deleteCurrentPhoto()">Delete Photo</button>
       </div>
       <div class="comments-section">
         <h4 id="comments-heading">Comments</h4>
