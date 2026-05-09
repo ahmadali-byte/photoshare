@@ -32,14 +32,26 @@ def analyze_image(image_bytes: bytes) -> dict:
     """Returns AI-generated tags and caption for a photo."""
     try:
         client = _get_vision()
-        result = client.analyze(
-            image_data=image_bytes,
-            visual_features=[VisualFeatures.TAGS, VisualFeatures.CAPTION],
-        )
-        tags = [t.name for t in (result.tags.list if result.tags else [])]
-        description = (
-            result.caption.text if result.caption else "No description available"
-        )
+        try:
+            result = client.analyze(
+                image_data=image_bytes,
+                visual_features=[VisualFeatures.TAGS, VisualFeatures.CAPTION],
+            )
+            tags = [t.name for t in (result.tags.list if result.tags else [])]
+            description = result.caption.text if result.caption else None
+        except Exception:
+            result = client.analyze(
+                image_data=image_bytes,
+                visual_features=[VisualFeatures.TAGS],
+            )
+            tags = [t.name for t in (result.tags.list if result.tags else [])]
+            description = None
+
+        if not description and tags:
+            description = "Photo contains: " + ", ".join(tags[:5])
+        elif not description:
+            description = "Photo analysed by Azure Computer Vision"
+
         return {"tags": tags[:10], "description": description}
     except Exception as e:
         return {"tags": [], "description": f"Analysis unavailable: {str(e)}"}

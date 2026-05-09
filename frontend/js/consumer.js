@@ -1,5 +1,5 @@
 // Guard: authenticated users (both roles can browse)
-if (!Auth.isLoggedIn()) { window.location.href = "index.html"; }
+if (!Auth.isLoggedIn()) { window.location.href = "login.html"; }
 
 const user = Auth.getUser();
 document.getElementById("nav-username").textContent = `@${user.username}`;
@@ -245,5 +245,5 @@ function sentimentEmoji(s) {
 
 function logout() {
   Auth.clear();
-  window.location.href = "index.html";
+  window.location.href = "login.html";
 }

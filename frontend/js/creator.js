@@ -267,5 +267,5 @@ function sentimentEmoji(s) {
 
 function logout() {
   Auth.clear();
-  window.location.href = "index.html";
+  window.location.href = "login.html";
 }
