@@ -45,6 +45,9 @@ def register(req: func.HttpRequest) -> func.HttpResponse:
     username = (body.get("username") or "").strip()
     email = (body.get("email") or "").strip().lower()
     password = body.get("password") or ""
+    role = (body.get("role") or "consumer").strip().lower()
+    if role not in ("consumer", "creator"):
+        role = "consumer"
     if not username or not email or not password:
         return _err("username, email and password required")
     if len(password) < 6:
@@ -55,7 +58,7 @@ def register(req: func.HttpRequest) -> func.HttpResponse:
     if cosmos_db.get_user_by_username(username):
         return _err("Username taken", 409)
     pw_hash = auth_utils.hash_password(password)
-    user = cosmos_db.create_user(username, email, pw_hash, "consumer")
+    user = cosmos_db.create_user(username, email, pw_hash, role)
     token = auth_utils.create_token(user["id"], user["username"], user["role"])
     return _ok({"token": token, "user": {"id": user["id"], "username": user["username"], "role": user["role"]}}, 201)
 

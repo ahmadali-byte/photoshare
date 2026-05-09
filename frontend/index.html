@@ -3,185 +3,135 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>PhotoShare — Sign In</title>
+  <title>PhotoShare — Cloud-Native Photo Platform</title>
   <link rel="stylesheet" href="css/app.css" />
 </head>
 <body>
-  <div class="auth-page">
-    <div class="auth-container">
-      <div class="auth-header">
-        <div class="auth-logo">📷</div>
-        <h1>PhotoShare</h1>
-        <p>Cloud-native photo platform · COM769</p>
-      </div>
-      <div class="auth-body">
-        <div class="auth-tabs">
-          <div class="auth-tab active" id="tab-login" onclick="switchTab('login')">Sign In</div>
-          <div class="auth-tab" id="tab-register" onclick="switchTab('register')">Register</div>
-          <div class="auth-tab" id="tab-creator" onclick="switchTab('creator')">Creator</div>
-        </div>
 
-        <div id="alert-area"></div>
+<!-- ── Landing Nav ─────────────────────────────────────────────────────── -->
+<nav class="land-nav">
+  <div class="land-nav-brand">
+    <span class="logo-icon">📷</span>
+    <span>PhotoShare</span>
+  </div>
+  <div class="land-nav-links">
+    <a href="login.html" class="btn btn-ghost btn-sm"
+       style="color:rgba(255,255,255,0.7); border-color:rgba(255,255,255,0.2);">Sign In</a>
+    <a href="login.html#register" class="btn btn-primary btn-sm">Get Started</a>
+  </div>
+</nav>
 
-        <!-- ── Login ── -->
-        <form id="login-form">
-          <div class="form-group">
-            <label for="login-email">Email</label>
-            <input type="email" id="login-email" class="form-control" placeholder="you@example.com" required />
-          </div>
-          <div class="form-group">
-            <label for="login-password">Password</label>
-            <input type="password" id="login-password" class="form-control" placeholder="••••••••" required />
-          </div>
-          <button type="submit" class="btn btn-primary" style="width:100%">
-            <span id="login-btn-text">Sign In</span>
-          </button>
-        </form>
+<!-- ── Hero ───────────────────────────────────────────────────────────── -->
+<section class="hero">
+  <div class="hero-badge">
+    <span>✦</span> COM769 · Scalable Advanced Software Solutions
+  </div>
+  <h1>
+    Share moments.<br/>
+    <em>Powered by the cloud.</em>
+  </h1>
+  <p class="hero-sub">
+    A cloud-native photo platform built on Azure Functions, Cosmos DB,
+    Blob Storage and Azure AI Services — fast, scalable, and intelligent.
+  </p>
+  <div class="hero-actions">
+    <a href="login.html#register" class="btn btn-primary btn-lg">Start Sharing Free</a>
+    <a href="login.html" class="btn btn-outline-white btn-lg">Sign In</a>
+  </div>
+</section>
 
-        <!-- ── Register (Consumer) ── -->
-        <form id="register-form" style="display:none">
-          <div class="form-group">
-            <label for="reg-username">Username</label>
-            <input type="text" id="reg-username" class="form-control" placeholder="coolphotographer" required />
-          </div>
-          <div class="form-group">
-            <label for="reg-email">Email</label>
-            <input type="email" id="reg-email" class="form-control" placeholder="you@example.com" required />
-          </div>
-          <div class="form-group">
-            <label for="reg-password">Password</label>
-            <input type="password" id="reg-password" class="form-control" placeholder="Min 6 characters" required />
-          </div>
-          <div class="alert alert-info">
-            Consumer accounts can browse, rate, and comment on photos.
-          </div>
-          <button type="submit" class="btn btn-primary" style="width:100%">
-            <span id="reg-btn-text">Create Consumer Account</span>
-          </button>
-        </form>
-
-        <!-- ── Creator Registration (admin-authorised) ── -->
-        <form id="creator-form" style="display:none">
-          <div class="form-group">
-            <label for="cr-username">Username</label>
-            <input type="text" id="cr-username" class="form-control" placeholder="photographer_name" required />
-          </div>
-          <div class="form-group">
-            <label for="cr-email">Email</label>
-            <input type="email" id="cr-email" class="form-control" placeholder="creator@example.com" required />
-          </div>
-          <div class="form-group">
-            <label for="cr-password">Password</label>
-            <input type="password" id="cr-password" class="form-control" placeholder="Min 6 characters" required />
-          </div>
-          <div class="form-group">
-            <label for="cr-secret">Admin Authorisation Key</label>
-            <input type="password" id="cr-secret" class="form-control" placeholder="Provided by administrator" required />
-          </div>
-          <div class="alert alert-info">
-            Creator accounts can upload photos. Requires admin key.
-          </div>
-          <button type="submit" class="btn btn-primary" style="width:100%">
-            <span id="cr-btn-text">Create Creator Account</span>
-          </button>
-        </form>
-
-        <p style="text-align:center; margin-top:20px; font-size:0.75rem; color:#444;">
-          Azure Functions · Cosmos DB · Blob Storage · AI Services
-        </p>
-      </div>
+<!-- ── Features Strip ─────────────────────────────────────────────────── -->
+<section class="features-strip">
+  <div class="features-strip-inner">
+    <div class="feat-item">
+      <div class="feat-icon">🤖</div>
+      <h3>AI Image Analysis</h3>
+      <p>Azure Computer Vision auto-tags every photo with scene descriptions and keywords on upload.</p>
+    </div>
+    <div class="feat-item">
+      <div class="feat-icon">💬</div>
+      <h3>Sentiment Analysis</h3>
+      <p>Every comment is scored by Azure Text Analytics — positive, neutral, or negative in real time.</p>
+    </div>
+    <div class="feat-item">
+      <div class="feat-icon">⚡</div>
+      <h3>Serverless &amp; Scalable</h3>
+      <p>Azure Functions Python v2 — 10 API endpoints, scales to zero, costs nothing when idle.</p>
     </div>
   </div>
+</section>
 
-  <div id="toast"></div>
+<!-- ── How It Works ───────────────────────────────────────────────────── -->
+<div class="section">
+  <p class="section-label">How It Works</p>
+  <h2 class="section-title">From upload to discovery in seconds</h2>
+  <p class="section-sub">
+    Two roles, one seamless experience — Creators share their photography,
+    Consumers discover and engage with it.
+  </p>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">01</div>
+      <div class="step-icon">👤</div>
+      <h3>Create an Account</h3>
+      <p>Sign up as a Consumer to browse and rate, or as a Creator to upload your photography. No admin key needed.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">02</div>
+      <div class="step-icon">📸</div>
+      <h3>Upload &amp; Analyse</h3>
+      <p>Creators upload photos — Azure Computer Vision instantly generates AI descriptions, tags, and captions.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">03</div>
+      <div class="step-icon">⭐</div>
+      <h3>Discover &amp; Engage</h3>
+      <p>Consumers search the feed, rate photos 1–5 stars, and leave comments with live sentiment analysis.</p>
+    </div>
+  </div>
+</div>
 
-  <script src="js/config.js"></script>
-  <script src="js/auth.js"></script>
-  <script>
-    if (Auth.isLoggedIn()) {
-      window.location.href = Auth.getRole() === "creator" ? "creator.html" : "consumer.html";
-    }
+<!-- ── Tech Stack ─────────────────────────────────────────────────────── -->
+<section class="tech-section">
+  <h2>Built on Enterprise Azure Infrastructure</h2>
+  <div class="tech-badges">
+    <span class="tech-badge">⚡ Azure Functions (Python v2)</span>
+    <span class="tech-badge">🌌 Cosmos DB (NoSQL)</span>
+    <span class="tech-badge">📦 Blob Storage</span>
+    <span class="tech-badge">🤖 Computer Vision AI</span>
+    <span class="tech-badge">💬 Text Analytics AI</span>
+    <span class="tech-badge">🔒 JWT Authentication</span>
+    <span class="tech-badge">🚀 GitHub Actions CI/CD</span>
+    <span class="tech-badge">🌐 Static Website Hosting</span>
+  </div>
+</section>
 
-    function switchTab(tab) {
-      ["login","register","creator"].forEach(t => {
-        document.getElementById("tab-"+t).classList.toggle("active", t === tab);
-        const f = document.getElementById(t+"-form");
-        if (f) f.style.display = t === tab ? "block" : "none";
-      });
-      document.getElementById("alert-area").innerHTML = "";
-    }
+<!-- ── CTA ────────────────────────────────────────────────────────────── -->
+<div class="cta-section">
+  <h2>Ready to explore?</h2>
+  <p>Join PhotoShare and experience cloud-native photo sharing powered by real Azure AI.</p>
+  <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap; margin-top:8px;">
+    <a href="login.html#register" class="btn btn-primary btn-lg">Create Free Account</a>
+    <a href="login.html" class="btn btn-ghost btn-lg">Sign In</a>
+  </div>
+</div>
 
-    function showAlert(msg, type = "danger") {
-      document.getElementById("alert-area").innerHTML =
-        `<div class="alert alert-${type}">${msg}</div>`;
-    }
+<!-- ── Footer ─────────────────────────────────────────────────────────── -->
+<footer class="footer">
+  <div class="footer-brand">📷 PhotoShare</div>
+  <p class="footer-copy">COM769 Coursework · Ulster University QAHE · Built with Microsoft Azure</p>
+  <div style="display:flex; gap:18px;">
+    <a href="login.html" style="font-size:0.78rem; color:rgba(255,255,255,0.35);">Sign In</a>
+    <a href="login.html#register" style="font-size:0.78rem; color:rgba(255,255,255,0.35);">Register</a>
+  </div>
+</footer>
 
-    // Sign In
-    document.getElementById("login-form").addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const btn = document.getElementById("login-btn-text");
-      btn.innerHTML = '<span class="spinner"></span>';
-      const { ok, data } = await Auth.api("auth/login", {
-        method: "POST",
-        body: JSON.stringify({
-          email: document.getElementById("login-email").value.trim(),
-          password: document.getElementById("login-password").value,
-        }),
-      });
-      btn.textContent = "Sign In";
-      if (ok) {
-        Auth.setSession(data.token, data.user);
-        window.location.href = data.user.role === "creator" ? "creator.html" : "consumer.html";
-      } else {
-        showAlert(data.error || "Login failed. Check your credentials.");
-      }
-    });
-
-    // Consumer Register
-    document.getElementById("register-form").addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const btn = document.getElementById("reg-btn-text");
-      btn.innerHTML = '<span class="spinner"></span>';
-      const { ok, data } = await Auth.api("auth/register", {
-        method: "POST",
-        body: JSON.stringify({
-          username: document.getElementById("reg-username").value.trim(),
-          email: document.getElementById("reg-email").value.trim(),
-          password: document.getElementById("reg-password").value,
-          role: "consumer",
-        }),
-      });
-      btn.textContent = "Create Consumer Account";
-      if (ok) {
-        Auth.setSession(data.token, data.user);
-        window.location.href = "consumer.html";
-      } else {
-        showAlert(data.error || "Registration failed.");
-      }
-    });
-
-    // Creator Register (needs admin key)
-    document.getElementById("creator-form").addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const btn = document.getElementById("cr-btn-text");
-      btn.innerHTML = '<span class="spinner"></span>';
-      const { ok, data } = await Auth.api("auth/create-creator", {
-        method: "POST",
-        headers: { "X-Admin-Secret": document.getElementById("cr-secret").value },
-        body: JSON.stringify({
-          username: document.getElementById("cr-username").value.trim(),
-          email: document.getElementById("cr-email").value.trim(),
-          password: document.getElementById("cr-password").value,
-        }),
-      });
-      btn.textContent = "Create Creator Account";
-      if (ok) {
-        showAlert("Creator account created! You can now sign in.", "success");
-        setTimeout(() => switchTab("login"), 1500);
-      } else {
-        showAlert(data.error || "Failed — check your admin key.");
-      }
-    });
-  </script>
+<script src="js/config.js"></script>
+<script src="js/auth.js"></script>
+<script>
+  if (Auth.isLoggedIn()) {
+    window.location.href = Auth.getRole() === "creator" ? "creator.html" : "consumer.html";
+  }
+</script>
 </body>
 </html>

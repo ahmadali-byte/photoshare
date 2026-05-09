@@ -54,13 +54,18 @@ const Auth = (() => {
   }
 
   function requireRole(role) {
-    if (!isLoggedIn()) { window.location.href = "index.html"; return false; }
-    if (role && getRole() !== role) { window.location.href = "index.html"; return false; }
+    if (!isLoggedIn()) { window.location.href = "login.html"; return false; }
+    if (role && getRole() !== role) { window.location.href = "login.html"; return false; }
     return true;
   }
 
   return { setSession, getToken, getUser, isLoggedIn, getRole, clear, authHeaders, api, apiForm, requireRole };
 })();
+
+function logout() {
+  Auth.clear();
+  window.location.href = "login.html";
+}
 
 // ── Toast helper ──────────────────────────────────────────────────────────────
 function showToast(msg, type = "default") {

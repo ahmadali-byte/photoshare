@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PhotoShare — Sign In</title>
+  <link rel="stylesheet" href="css/app.css" />
+</head>
+<body>
+
+<div class="auth-page">
+
+  <!-- ── Left Panel (dark brand) ──────────────────────────────────────── -->
+  <div class="auth-left">
+    <div class="auth-left-brand">
+      <a href="index.html"
+         style="font-size:0.8rem; color:rgba(255,255,255,0.4); text-decoration:none; position:relative; z-index:1;">
+        ← Home
+      </a>
+    </div>
+
+    <div class="auth-left-quote" style="position:relative; z-index:1;">
+      <div style="display:flex; align-items:center; gap:10px; margin-bottom:32px;">
+        <span style="font-size:2rem;">📷</span>
+        <span style="font-size:1.1rem; font-weight:800; color:#fff; letter-spacing:-0.03em;">PhotoShare</span>
+      </div>
+      <blockquote>
+        "Every great photo tells a story — share yours with the world."
+      </blockquote>
+      <p>Cloud-native · AI-powered · Built on Azure</p>
+
+      <div style="margin-top:36px; display:flex; flex-direction:column; gap:14px;">
+        <div style="display:flex; align-items:center; gap:12px;">
+          <span style="font-size:1.2rem;">🤖</span>
+          <span style="font-size:0.86rem; color:rgba(255,255,255,0.55);">AI image analysis on every upload</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:12px;">
+          <span style="font-size:1.2rem;">💬</span>
+          <span style="font-size:0.86rem; color:rgba(255,255,255,0.55);">Sentiment scoring on every comment</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:12px;">
+          <span style="font-size:1.2rem;">⭐</span>
+          <span style="font-size:0.86rem; color:rgba(255,255,255,0.55);">Community ratings and discovery feed</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:12px;">
+          <span style="font-size:1.2rem;">☁️</span>
+          <span style="font-size:0.86rem; color:rgba(255,255,255,0.55);">Powered by Microsoft Azure cloud services</span>
+        </div>
+      </div>
+    </div>
+
+    <p style="font-size:0.75rem; color:rgba(255,255,255,0.25); position:relative; z-index:1;">
+      COM769 · Ulster University QAHE
+    </p>
+  </div>
+
+  <!-- ── Right Panel (white auth forms) ───────────────────────────────── -->
+  <div class="auth-right">
+    <div class="auth-card">
+
+      <div class="auth-tabs">
+        <div class="auth-tab active" id="tab-login" onclick="switchTab('login')">Sign In</div>
+        <div class="auth-tab" id="tab-register" onclick="switchTab('register')">Register</div>
+      </div>
+
+      <div id="alert-area"></div>
+
+      <!-- Sign In Form -->
+      <form id="login-form">
+        <div class="form-group">
+          <label for="login-email">Email address</label>
+          <input type="email" id="login-email" class="form-control"
+                 placeholder="you@example.com" required autocomplete="email" />
+        </div>
+        <div class="form-group">
+          <label for="login-password">Password</label>
+          <input type="password" id="login-password" class="form-control"
+                 placeholder="••••••••" required autocomplete="current-password" />
+        </div>
+        <button type="submit" class="btn btn-primary" style="width:100%; margin-top:8px;">
+          <span id="login-btn-text">Sign In</span>
+        </button>
+        <p style="text-align:center; margin-top:16px; font-size:0.82rem; color:var(--muted);">
+          No account yet?
+          <a href="#" onclick="switchTab('register')"
+             style="color:var(--indigo); font-weight:600; text-decoration:underline;">Register here</a>
+        </p>
+      </form>
+
+      <!-- Register Form -->
+      <form id="register-form" style="display:none">
+        <p style="font-size:0.83rem; color:var(--muted); margin-bottom:10px; font-weight:600;">
+          Choose your account type:
+        </p>
+
+        <!-- Role Selector -->
+        <div class="role-select">
+          <div class="role-option active" id="role-consumer" onclick="selectRole('consumer')">
+            <div class="ro-title">👁️ Consumer</div>
+            <div class="ro-desc">Browse, rate &amp; comment on photos</div>
+          </div>
+          <div class="role-option" id="role-creator" onclick="selectRole('creator')">
+            <div class="ro-title">📸 Creator</div>
+            <div class="ro-desc">Upload &amp; manage your gallery</div>
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-top:14px;">
+          <label for="reg-username">Username</label>
+          <input type="text" id="reg-username" class="form-control"
+                 placeholder="coolphotographer" required autocomplete="username" />
+        </div>
+        <div class="form-group">
+          <label for="reg-email">Email address</label>
+          <input type="email" id="reg-email" class="form-control"
+                 placeholder="you@example.com" required autocomplete="email" />
+        </div>
+        <div class="form-group">
+          <label for="reg-password">Password</label>
+          <input type="password" id="reg-password" class="form-control"
+                 placeholder="Minimum 6 characters" required autocomplete="new-password" />
+        </div>
+        <button type="submit" class="btn btn-primary" style="width:100%; margin-top:8px;">
+          <span id="reg-btn-text">Create Account</span>
+        </button>
+        <p style="text-align:center; margin-top:16px; font-size:0.82rem; color:var(--muted);">
+          Already have an account?
+          <a href="#" onclick="switchTab('login')"
+             style="color:var(--indigo); font-weight:600; text-decoration:underline;">Sign in</a>
+        </p>
+      </form>
+
+    </div>
+
+    <p style="text-align:center; margin-top:20px; font-size:0.73rem; color:var(--muted2);">
+      Azure Functions · Cosmos DB · Blob Storage · AI Services
+    </p>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script src="js/config.js"></script>
+<script src="js/auth.js"></script>
+<script>
+  if (Auth.isLoggedIn()) {
+    window.location.href = Auth.getRole() === "creator" ? "creator.html" : "consumer.html";
+  }
+
+  let selectedRole = "consumer";
+
+  function selectRole(role) {
+    selectedRole = role;
+    document.getElementById("role-consumer").classList.toggle("active", role === "consumer");
+    document.getElementById("role-creator").classList.toggle("active", role === "creator");
+  }
+
+  function switchTab(tab) {
+    ["login","register"].forEach(t => {
+      document.getElementById("tab-"+t).classList.toggle("active", t === tab);
+      const f = document.getElementById(t+"-form");
+      if (f) f.style.display = t === tab ? "block" : "none";
+    });
+    document.getElementById("alert-area").innerHTML = "";
+  }
+
+  function showAlert(msg, type = "danger") {
+    document.getElementById("alert-area").innerHTML =
+      `<div class="alert alert-${type}">${msg}</div>`;
+  }
+
+  if (window.location.hash === "#register") {
+    switchTab("register");
+  }
+
+  document.getElementById("login-form").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const btn = document.getElementById("login-btn-text");
+    btn.innerHTML = '<span class="spinner"></span> Signing in...';
+    const { ok, data } = await Auth.api("auth/login", {
+      method: "POST",
+      body: JSON.stringify({
+        email: document.getElementById("login-email").value.trim(),
+        password: document.getElementById("login-password").value,
+      }),
+    });
+    btn.textContent = "Sign In";
+    if (ok) {
+      Auth.setSession(data.token, data.user);
+      window.location.href = data.user.role === "creator" ? "creator.html" : "consumer.html";
+    } else {
+      showAlert(data.error || "Login failed. Please check your credentials.");
+    }
+  });
+
+  document.getElementById("register-form").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const btn = document.getElementById("reg-btn-text");
+    btn.innerHTML = '<span class="spinner"></span> Creating account...';
+    const { ok, data } = await Auth.api("auth/register", {
+      method: "POST",
+      body: JSON.stringify({
+        username: document.getElementById("reg-username").value.trim(),
+        email: document.getElementById("reg-email").value.trim(),
+        password: document.getElementById("reg-password").value,
+        role: selectedRole,
+      }),
+    });
+    btn.textContent = "Create Account";
+    if (ok) {
+      Auth.setSession(data.token, data.user);
+      window.location.href = data.user.role === "creator" ? "creator.html" : "consumer.html";
+    } else {
+      showAlert(data.error || "Registration failed. Please try again.");
+    }
+  });
+</script>
+</body>
+</html>
